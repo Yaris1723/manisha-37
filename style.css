@@ -75,7 +75,7 @@ body {
     background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
     border: 1px solid #ddd;
     border-radius: 20px;
-    display: flex;
+    display: none; /* Hide cards by default */
     justify-content: center;
     align-items: center;
     text-align: center;
@@ -83,14 +83,12 @@ body {
     color: #444;
     padding: 25px;
     box-sizing: border-box;
-    cursor: grab;
-    user-select: none;
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    transition: transform 0.4s ease, opacity 0.4s ease;
+    transition: opacity 0.4s ease;
 }
 
-.card:active {
-    cursor: grabbing;
+.card.active {
+    display: flex; /* Show active card */
 }
 
 .card .reason-number {
@@ -107,4 +105,35 @@ body {
     align-items: center;
     font-size: 0.7em;
     font-weight: 700;
+}
+
+.navigation-buttons {
+    position: absolute;
+    bottom: 30px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.navigation-buttons button {
+    background-color: #444;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 30px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.navigation-buttons button:hover {
+    background-color: #666;
+}
+
+.navigation-buttons button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }

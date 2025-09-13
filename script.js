@@ -36,12 +36,17 @@ const reasons = [
     "you are the only person cared me without any reason and need",
     "You laugh at most of the nonsense things i made and it makes my day",
     "You always listen to my random nonsense without judging"
-];
+].reverse(); // Reverse to show #1 last
 
 const cardContainer = document.querySelector('.card-container');
 const page1 = document.getElementById('page1');
 const page2 = document.getElementById('page2');
 const reasonCardsPage = document.getElementById('reason-cards');
+const prevBtn = document.getElementById('prev-btn');
+const nextBtn = document.getElementById('next-btn');
+
+let cards = [];
+let currentCardIndex = 0;
 
 function createCard(reason, number) {
     const card = document.createElement('div');
@@ -55,84 +60,54 @@ function createCard(reason, number) {
 
 function loadCards() {
     reasons.forEach((reason, index) => {
-        const cardNumber = reasons.length - index;
+        const cardNumber = index + 1;
         const card = createCard(reason, cardNumber);
         cardContainer.appendChild(card);
+        cards.push(card);
     });
-    addSwipeListeners();
+    showCard(currentCardIndex);
 }
 
-function addSwipeListeners() {
-    const cards = document.querySelectorAll('.card');
-    cards.forEach((card, index) => {
-        let startX;
-        let startY;
-        let isDragging = false;
-
-        card.addEventListener('mousedown', (e) => {
-            startX = e.clientX;
-            startY = e.clientY;
-            isDragging = true;
-            card.style.cursor = 'grabbing';
-        });
-
-        card.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            const currentX = e.clientX;
-            const currentY = e.clientY;
-            const diffX = currentX - startX;
-            const diffY = currentY - startY;
-            card.style.transform = `translate(${diffX}px, ${diffY}px) rotate(${diffX / 10}deg)`;
-        });
-
-        card.addEventListener('mouseup', (e) => {
-            isDragging = false;
-            card.style.cursor = 'grab';
-            const currentX = e.clientX;
-            const diffX = currentX - startX;
-
-            if (Math.abs(diffX) > 100) {
-                const direction = diffX > 0 ? 1 : -1;
-                card.style.transform = `translate(${direction * 500}px, 0) rotate(${direction * 30}deg)`;
-                card.style.opacity = 0;
-                setTimeout(() => card.remove(), 300);
-
-                if (index === reasons.length - 1) {
-                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                }
-            } else {
-                card.style.transform = 'translate(0, 0) rotate(0)';
-            }
-        });
+function showCard(index) {
+    cards.forEach((card, i) => {
+        if (i === index) {
+            card.classList.add('active');
+        } else {
+            card.classList.remove('active');
+        }
     });
+
+    prevBtn.disabled = index === 0;
+    nextBtn.disabled = index === cards.length - 1;
+
+    if (index === cards.length - 1) {
+        confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+    }
 }
 
+nextBtn.addEventListener('click', () => {
+    if (currentCardIndex < cards.length - 1) {
+        currentCardIndex++;
+        showCard(currentCardIndex);
+    }
+});
+
+prevBtn.addEventListener('click', () => {
+    if (currentCardIndex > 0) {
+        currentCardIndex--;
+        showCard(currentCardIndex);
+    }
+});
+
+// Page transitions
 setTimeout(() => {
     page1.classList.remove('active');
     page2.classList.add('active');
 }, 3000);
 
-page2.addEventListener('swiped-left', () => {
+// A simple click anywhere on page 2 will transition
+page2.addEventListener('click', () => {
     page2.classList.remove('active');
     reasonCardsPage.classList.add('active');
     loadCards();
-});
-
-// Basic swipe detection for page 2
-let touchstartX = 0;
-let touchendX = 0;
-    
-function checkDirection() {
-  if (touchendX < touchstartX) {
-      page2.dispatchEvent(new Event('swiped-left'));
-  }
-}
-
-page2.addEventListener('touchstart', e => {
-  touchstartX = e.changedTouches[0].screenX;
-});
-
-page2.addEventListener('touchend', e => {
-  touchendX = e.changedTouches[0].screenX;
-  checkDirection();
 });
